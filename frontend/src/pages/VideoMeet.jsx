@@ -17,7 +17,7 @@ import style from "../styles/videoComponent.module.css";
 //step-1
 
 // URL of backend/socket server
-const serverUrl = "http://localhost:5000";
+const serverUrl = "https://zoom-clone-backend-hgl2.onrender.com";
 
 // Stores all WebRTC peer connections
 var connections = {};
