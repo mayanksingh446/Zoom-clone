@@ -5,7 +5,7 @@ import { useState } from "react";
 export const AuthContext = createContext({});
 
 const client = axios.create({
-    baseURL: "https://zoom-clone-backend-hgl2.onrender.com"
+    baseURL: "https://zoom-clone-backend-hgl2.onrender.com/api/v1/user/login"
 })
 
 export const AuthProvider = ({children})=>{
