@@ -482,7 +482,7 @@ const VideoMeet = () => {
 
   let connectToSocketServer = () => {
     // Connect frontend socket with backend socket server
-    socketRef.current = io.connect(serverUrl, { secure: false });
+    socketRef.current = io.connect(serverUrl, { secure: true });
 
     // Listen for WebRTC signal from server
     // signal can contain SDP offer/answer or ICE candidate
