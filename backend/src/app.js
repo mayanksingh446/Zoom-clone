@@ -13,7 +13,26 @@ const io = connectToSocket(server); // socket connection
 //Socket.IO needs the HTTP server to attach itself.
 //Without the HTTP server, Socket.IO has nowhere to listen.
 
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://zoom-clone-frontend-g30n.onrender.com',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error('Origin is not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 app.use(express.json({limit:'50kb'}));
 app.use(express.urlencoded({limit:'50kb',extended:true}));
 app.use('/api/v1/user',userRoutes);
