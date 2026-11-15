@@ -16,7 +16,7 @@ export const AuthProvider = ({children})=>{
 
     const handleRegister = async(name,username,password)=>{  
         try{
-            let request = await client.post('/api/v1/user/register',{
+            let request = await client.post('/register',{
                    name:name,
                    username:username,
                    password:password
@@ -32,7 +32,7 @@ export const AuthProvider = ({children})=>{
 
     const handleLogin = async(username,password)=>{
         try{
-            let request =  await client.post('/api/v1/user/login',{
+            let request =  await client.post('/login',{
                 username:username,
                 password:password
             })
