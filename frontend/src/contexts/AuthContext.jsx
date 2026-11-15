@@ -5,7 +5,7 @@ import { useState } from "react";
 export const AuthContext = createContext({});
 
 const client = axios.create({
-    baseURL: "https://zoom-clone-backend-hgl2.onrender.com"
+    baseURL: "https://zoom-clone-backend-4dey.onrender.com"
 })
 
 export const AuthProvider = ({children})=>{
@@ -16,7 +16,7 @@ export const AuthProvider = ({children})=>{
 
     const handleRegister = async(name,username,password)=>{  
         try{
-            let request = await client.post('/register',{
+            let request = await client.post('/api/v1/user/register',{
                    name:name,
                    username:username,
                    password:password
@@ -32,7 +32,7 @@ export const AuthProvider = ({children})=>{
 
     const handleLogin = async(username,password)=>{
         try{
-            let request =  await client.post('/login',{
+            let request =  await client.post('/api/v1/user/login',{
                 username:username,
                 password:password
             })
