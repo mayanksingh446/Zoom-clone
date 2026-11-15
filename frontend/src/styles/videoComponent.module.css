@@ -35,12 +35,13 @@
   position: absolute;
   right: 20px;
   bottom: 100px;
-  width: 220px;
-  height: 140px;
+  width: 320px;
+  height: 200px;
   object-fit: cover;
   border-radius: 12px;
   z-index: 10;
   background-color: black;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
 }
 
 .buttonContainer {
@@ -59,4 +60,214 @@
 
 .buttonContainer svg {
   font-size: 34px;
+}
+
+.chatPanel {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 30;
+  width: min(380px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.94);
+  color: #f8fafc;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chatPanel h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+}
+
+.messageList {
+  min-height: 100px;
+  max-height: 52vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.messageList p {
+  margin: 0;
+  color: #94a3b8;
+  text-align: center;
+  padding: 28px 8px;
+}
+
+.chatMessage {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 12px;
+  background: rgba(51, 65, 85, 0.72);
+  line-height: 1.4;
+}
+
+.chatMessage strong {
+  color: #a5b4fc;
+  font-size: 0.78rem;
+}
+
+.chatMessage span {
+  overflow-wrap: anywhere;
+  color: #e2e8f0;
+}
+
+.messageForm {
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.messageForm > div {
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.messageForm button {
+  min-width: 72px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7167ff, #4f46e5);
+  font-weight: 700;
+  text-transform: none;
+}
+
+@media (max-width: 520px) {
+  .chatPanel {
+    top: 12px;
+    right: 12px;
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+  }
+}
+
+.lobbyContainer {
+  min-height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  padding: 32px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(93, 79, 220, 0.35), transparent 34%),
+    radial-gradient(circle at 85% 85%, rgba(37, 99, 235, 0.25), transparent 36%),
+    #080b1f;
+}
+
+.lobbyCard {
+  width: min(940px, 100%);
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(360px, 1.15fr);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  background: rgba(22, 27, 58, 0.9);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+}
+
+.lobbyContent {
+  padding: clamp(28px, 5vw, 56px);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lobbyEyebrow {
+  color: #a5b4fc;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lobbyContent h2 {
+  margin: 12px 0 10px;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1.05;
+}
+
+.lobbyContent p {
+  margin: 0 0 28px;
+  color: #c7cbe3;
+  line-height: 1.6;
+}
+
+.lobbyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lobbyForm > div {
+  background: white;
+  border-radius: 6px;
+}
+
+.lobbyForm button {
+  min-height: 48px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #7167ff, #4f46e5);
+  font-weight: 700;
+  text-transform: none;
+}
+
+.lobbyPreview {
+  min-height: 460px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #c7cbe3;
+  font-size: 0.85rem;
+  background: #0e132c;
+}
+
+.lobbyPreview video {
+  width: 100%;
+  flex: 1;
+  min-height: 300px;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #050712;
+  transform: scaleX(-1);
+}
+
+@media (max-width: 720px) {
+  .lobbyContainer {
+    padding: 16px;
+  }
+
+  .lobbyCard {
+    grid-template-columns: 1fr;
+  }
+
+  .lobbyPreview {
+    min-height: 280px;
+  }
+
+  .lobbyPreview video {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 520px) {
+  .meetUserVideo {
+    right: 12px;
+    bottom: 88px;
+    width: 220px;
+    height: 138px;
+  }
 }

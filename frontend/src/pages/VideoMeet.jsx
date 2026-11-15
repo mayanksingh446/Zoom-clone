@@ -10,6 +10,7 @@ import ScreenShareIcon from "@mui/icons-material/ScreenShare";
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
 import CallEndIcon from "@mui/icons-material/CallEnd";
 import ChatIcon from "@mui/icons-material/Chat";
+import { useNavigate } from "react-router-dom";
 
 import style from "../styles/videoComponent.module.css";
 
@@ -33,6 +34,8 @@ const peerConfiConnections = {
 };
 
 const VideoMeet = () => {
+  const navigate = useNavigate();
+
   // Stores socket.io connection object
   var socketRef = useRef();
 
@@ -70,7 +73,7 @@ const VideoMeet = () => {
   let [message, setMessage] = useState("");
 
   // Number of unread messages
-  let [newMessages, setNewMessages] = useState(3);
+  let [newMessages, setNewMessages] = useState(0);
 
   // Show username input screen initially
   let [askForUsername, setAskForUsername] = useState(true);
@@ -401,7 +404,55 @@ const VideoMeet = () => {
   // Both exchange ICE candidates
   // Video/audio connection starts
 
-  let addMessage = () => {};
+  let addMessage = (data, sender, senderSocketId) => {
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      { data, sender, senderSocketId },
+    ]);
+
+    if (!showModal) {
+      setNewMessages((currentCount) => currentCount + 1);
+    }
+  };
+
+  let updateRemoteVideo = (socketId, remoteStream) => {
+    setVideos((currentVideos) => {
+      const existingVideo = currentVideos.find(
+        (video) => video.socketId === socketId,
+      );
+
+      const updatedVideos = existingVideo
+        ? currentVideos.map((video) =>
+            video.socketId === socketId
+              ? { ...video, stream: remoteStream }
+              : video,
+          )
+        : [
+            ...currentVideos,
+            {
+              socketId,
+              stream: remoteStream,
+              autoPlay: true,
+              playsInline: true,
+            },
+          ];
+
+      videoRef.current = updatedVideos;
+      return updatedVideos;
+    });
+  };
+
+  let sendMessage = (event) => {
+    event.preventDefault();
+
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage || !socketRef.current) {
+      return;
+    }
+
+    socketRef.current.emit("chat-message", trimmedMessage, username);
+    setMessage("");
+  };
 
   // step - 3
 
@@ -473,32 +524,7 @@ const VideoMeet = () => {
         };
 
         connections[id].ontrack = (event) => {
-          const remoteStream = event.streams[0];
-          let videoExists = videoRef.current.find(
-            (video) => video.socketId === id,
-          );
-
-          if (videoExists) {
-            setVideos((videos) => {
-              const updatedVideos = videos.map((video) =>
-                video.socketId === id ? { ...video, stream: remoteStream } : video,
-              );
-              videoRef.current = updatedVideos;
-              return updatedVideos;
-            });
-          } else {
-            let newVideo = {
-              socketId: id,
-              stream: remoteStream,
-              autoPlay: true,
-              playsInline: true,
-            };
-            setVideos((videos) => {
-              const updatedVideos = [...videos, newVideo];
-              videoRef.current = updatedVideos;
-              return updatedVideos;
-            });
-          }
+          updateRemoteVideo(id, event.streams[0]);
         };
 
         if (window.localStream) {
@@ -527,32 +553,7 @@ const VideoMeet = () => {
           };
 
           connections[socketListId].ontrack = (event) => {
-            const remoteStream = event.streams[0];
-            let videoExists = videoRef.current.find(
-              (video) => video.socketId === socketListId,
-            );
-
-            if (videoExists) {
-              setVideos((videos) => {
-                const updatedVideos = videos.map((video) =>
-                  video.socketId === socketListId ? { ...video, stream: remoteStream } : video,
-                );
-                videoRef.current = updatedVideos;
-                return updatedVideos;
-              });
-            } else {
-              let newVideo = {
-                socketId: socketListId,
-                stream: remoteStream,
-                autoPlay: true,
-                playsInline: true,
-              };
-              setVideos((videos) => {
-                const updatedVideos = [...videos, newVideo];
-                videoRef.current = updatedVideos;
-                return updatedVideos;
-              });
-            }
+            updateRemoteVideo(socketListId, event.streams[0]);
           };
 
           if (window.localStream) {
@@ -685,24 +686,61 @@ const VideoMeet = () => {
     setScreen(!screen);
   };
 
+  let leaveMeeting = () => {
+    if (window.localStream) {
+      window.localStream.getTracks().forEach((track) => track.stop());
+      window.localStream = null;
+    }
+
+    Object.values(connections).forEach((connection) => connection.close());
+    connections = {};
+
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+
+    navigate("/");
+  };
+
   return (
     <div>
       {askForUsername === true ? (
-        <div>
-          <h2>Enter into Lobby</h2>
-          <TextField
-            id="outlined-basic"
-            onChange={(e) => setUsername(e.target.value)}
-            label="username"
-            value={username}
-            variant="outlined"
-          />
-          <Button variant="contained" onClick={connect}>
-            Connect
-          </Button>
+        <div className={style.lobbyContainer}>
+          <div className={style.lobbyCard}>
+            <div className={style.lobbyContent}>
+              <span className={style.lobbyEyebrow}>Video meeting</span>
+              <h2>Ready to join?</h2>
+              <p>Enter your name to preview your camera before joining the call.</p>
 
-          <div>
-            <video ref={localVideoRef} autoPlay muted></video>
+              <form
+                className={style.lobbyForm}
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (username.trim()) {
+                    connect();
+                  }
+                }}
+              >
+                <TextField
+                  id="meeting-username"
+                  onChange={(e) => setUsername(e.target.value)}
+                  label="Your name"
+                  value={username}
+                  variant="outlined"
+                  fullWidth
+                  autoComplete="name"
+                />
+                <Button type="submit" variant="contained" disabled={!username.trim()}>
+                  Join meeting
+                </Button>
+              </form>
+            </div>
+
+            <div className={style.lobbyPreview}>
+              <span>Camera preview</span>
+              <video ref={localVideoRef} autoPlay muted></video>
+            </div>
           </div>
         </div>
       ) : (
@@ -712,7 +750,7 @@ const VideoMeet = () => {
             <IconButton onClick={handleVideo} style={{ color: "white" }}>
               {video === true ? <VideocamIcon /> : <VideocamOffIcon />}
             </IconButton>
-            <IconButton style={{ color: "red" }}>
+            <IconButton onClick={leaveMeeting} style={{ color: "red" }}>
               <CallEndIcon />
             </IconButton>
             <IconButton onClick={handleAudio} style={{ color: "white" }}>
@@ -732,11 +770,48 @@ const VideoMeet = () => {
             )}
 
             <Badge badgeContent={newMessages} max={999} color="secondary">
-              <IconButton style={{ color: "white" }}>
+              <IconButton
+                onClick={() => {
+                  setShowModal((isOpen) => !isOpen);
+                  setNewMessages(0);
+                }}
+                style={{ color: "white" }}
+              >
                 <ChatIcon />
               </IconButton>
             </Badge>
           </div>
+
+          {showModal && (
+            <div className={style.chatPanel}>
+              <h2>Messages</h2>
+              <div className={style.messageList}>
+                {messages.length === 0 ? (
+                  <p>No messages yet.</p>
+                ) : (
+                  messages.map((chatMessage, index) => (
+                    <div className={style.chatMessage} key={`${chatMessage.senderSocketId}-${index}`}>
+                      <strong>{chatMessage.sender}</strong>
+                      <span>{chatMessage.data}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+              <form className={style.messageForm} onSubmit={sendMessage}>
+                <TextField
+                  size="small"
+                  fullWidth
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  placeholder="Type a message"
+                  autoComplete="off"
+                />
+                <Button type="submit" variant="contained">
+                  Send
+                </Button>
+              </form>
+            </div>
+          )}
 
           <video
             className={style.meetUserVideo}
@@ -744,7 +819,7 @@ const VideoMeet = () => {
             autoPlay
             muted
           ></video>
-          <h1>{mySocketId}</h1>
+          {/* <h1>{mySocketId}</h1> */}
 
           <div className={style.conferenceView}>
             {videos.map((video) => (

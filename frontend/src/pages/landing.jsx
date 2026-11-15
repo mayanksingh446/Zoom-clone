@@ -1,4 +1,3 @@
-import React from 'react'
 import "../App.css";
 import { Link } from 'react-router-dom';
 
@@ -11,10 +10,8 @@ export default function landing () {
           </div>
           <div className='navList'>
                 <p>Join as Guest</p>
-                <p>Register</p>
-                <div role='button'>
-                  <p>Login</p>
-                </div>
+                <Link to="/auth?mode=register">Register</Link>
+                <Link to="/auth?mode=login">Login</Link>
           </div>
         </nav>
 

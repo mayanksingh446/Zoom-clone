@@ -28,6 +28,11 @@
    cursor: pointer;
 }
 
+.landingPageContainer nav .navList a{
+   color: inherit;
+   text-decoration: none;
+}
+
 .landingMainContainer{
   display: flex;
   justify-content: space-between;

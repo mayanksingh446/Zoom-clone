@@ -84,7 +84,7 @@ export const connectToSocket = (server) => {
         });
 
         // Log message on server console
-        console.log("message", key, ":", sender, data);
+        console.log("message", matchingRoom, ":", sender, data);
 
         // Send message to all users in room except the sender
         connections[matchingRoom].forEach((elem) => {

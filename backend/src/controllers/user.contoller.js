@@ -1,12 +1,12 @@
 import {user} from '../models/user.model.js';
 import httpStatus from 'http-status';
-import bcrypt, { hash } from 'bcrypt';
+import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { json } from 'stream/consumers';
 
 
 const login = async(req,res)=>{
-    const{username,password} = req.body;
+    const username = req.body?.username?.trim();
+    const password = req.body?.password;
 
     if(!username || !password){
         return res.status(400).json({message:"Username and password are required"});
@@ -31,12 +31,18 @@ const login = async(req,res)=>{
         }
 
     }catch(error){
-        res.json({message:"Error logging in",error:error.message});
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message:"Error logging in"});
     }
 }
 
 const register = async(req,res)=>{
-    const{name,username,password} = req.body;
+    const name = req.body?.name?.trim();
+    const username = req.body?.username?.trim();
+    const password = req.body?.password;
+
+    if(!name || !username || !password){
+        return res.status(httpStatus.BAD_REQUEST).json({message:"Name, username and password are required"});
+    }
 
     try{
         const existingUser = await user.findOne({username});
@@ -55,7 +61,7 @@ const register = async(req,res)=>{
         await newUser.save();
         return res.status(httpStatus.CREATED).json({message:"User registered successfully"});
     }catch(error){
-        res.json({message:"Error registering user",error:error.message});
+        return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({message:"Error registering user"});
     }
 }
 

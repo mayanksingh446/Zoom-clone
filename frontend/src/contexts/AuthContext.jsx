@@ -1,6 +1,5 @@
 import { createContext, useContext } from "react";
 import axios, { HttpStatusCode } from "axios";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export const AuthContext = createContext({});
@@ -48,8 +47,6 @@ export const AuthProvider = ({children})=>{
             throw error;
         }
     }
-
-    const router = useNavigate();
 
     const data = {
         userData,setUserData,handleRegister,handleLogin

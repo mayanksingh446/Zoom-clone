@@ -3,18 +3,15 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import bgImage from "../assets/signinbackground.jpeg";
 import { AuthContext } from "../contexts/AuthContext";
 import Snackbar from "@mui/material/Snackbar";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const defaultTheme = createTheme();
 
@@ -25,18 +22,36 @@ export default function Authentication() {
   const [message, setMessage] = React.useState("");
   const [error, setError] = React.useState("");
 
-  const [formState, setFormState] = React.useState(0);
-
   const [open, setOpen] = React.useState(false);
 
   const { handleRegister, handleLogin } = React.useContext(AuthContext);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [formState, setFormState] = React.useState(
+    searchParams.get("mode") === "register" ? 1 : 0
+  );
 
   const handleAuth = async () => {
     try {
+      if (!username.trim() || !password || (formState === 1 && !name.trim())) {
+        setError(
+          formState === 1
+            ? "Name, username and password are required"
+            : "Username and password are required"
+        );
+        setOpen(false);
+        return;
+      }
+
       if (formState === 0) {
         let result = await handleLogin(username, password);
         setMessage(result || "Login successful");
         setOpen(true);
+        const meetingId =
+          typeof window.crypto?.randomUUID === "function"
+            ? window.crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        navigate(`/meeting-${meetingId}`);
       }
       if (formState === 1) {
         let result = await handleRegister(name, username, password);
